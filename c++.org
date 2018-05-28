@@ -1,0 +1,2111 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS:
+#+SEQ_TODO: TODO STARTED DONE DEFERRED CANCELLED | WAITING DELEGATED APPT
+#+DRAWERS: HIDDEN STATE
+#+TITLE: C++ notes for CoP
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++14 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+OPTIONS: ^:nil
+
+* General
+
+** Use typedefs
+
+#+BEGIN_SRC C++
+std::unordered_map<std::string,std::string> stringmap;
+#+END_SRC
+
+* Vectors
+
+** Multi-dimensional
+
+And allocate their size automatically
+
+#+BEGIN_SRC C++
+vector<vector<int> > A(dimension1, vector<int>(dimension2));
+//or
+vector<vector<int> > A(dimension1, vector<int>(dimension2),initValue);
+#+END_SRC
+
+* Collections
+
+
+** Reverse a collection
+
+#+BEGIN_SRC C++
+std::reverse(v.begin(), v.end());
+#+END_SRC
+
+** Back inserter
+
+#+BEGIN_SRC C++
+std::back_insert_iterator< std::vector<int> > back_it (v2);
+#+END_SRC
+
+#+BEGIN_SRC C++
+std::copy (bar.begin(),bar.end(),back_inserter(foo));
+#+END_SRC
+
+
+** map (as in functional map)
+
+Using a backinserter, probably the best way to do it
+
+if it does not create the vector, then why bother? Perhaps
+just use for_each instead
+
+#+BEGIN_SRC C++
+std::back_insert_iterator< std::vector<int> > back_it (v2);
+std::transform(v.begin(), v.end(), back_it, [](int x)->int {
+  return -x;
+});
+#+END_SRC
+
+** for_each
+
+#+BEGIN_SRC C++
+std::for_each(v.begin(), v.end(), [](int x) {
+   std::cout << x ;
+});
+#+END_SRC
+
+
+* Priority queue
+
+** Descending
+
+#+BEGIN_SRC C++
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <algorithm>
+
+int main()
+{
+   std::priority_queue<int> q;
+   for(int n : {1,8,5,6,3,4,0,9,7,2})
+     q.push(n);
+   for(int i = 0;i<10;i++) {
+      std::cout << q.top() << std::endl;
+      q.pop();
+   }
+   return 0;
+}
+#+END_SRC
+
+#+RESULTS:
+| 9 |
+| 8 |
+| 7 |
+| 6 |
+| 5 |
+| 4 |
+| 3 |
+| 2 |
+| 1 |
+| 0 |
+
+** ascending
+
+#+BEGIN_SRC C++
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <algorithm>
+
+int main()
+{
+   std::priority_queue<int,std::vector<int>,std::greater<int>> q;
+   for(int n : {1,8,5,6,3,4,0,9,7,2})
+     q.push(n);
+   for(int i = 0;i<10;i++) {
+      std::cout << q.top() << std::endl;
+      q.pop();
+   }
+   return 0;
+}
+#+END_SRC
+
+* queue/deque
+
+#+BEGIN_SRC  C++ :main no :flags -std=c++14 -Wall --pedantic -Werror :results output 
+#include <iostream>
+#include <deque>
+ 
+int main()
+{
+    // Create a deque containing integers
+    std::deque<int> d = {7, 5, 16, 8};
+ 
+    // Add an integer to the beginning and end of the deque
+    d.push_front(13);
+    d.push_back(25);
+ 
+    // Iterate and print values of deque
+    for(int n : d) {
+        std::cout << n << '\n';
+    }
+}
+#+END_SRC
+
+** operations
+
+| push_back  |               |
+| push_front |               |
+| pop_back   |               |
+| pop_front  |               |
+| top        |               |
+| pop        |               |
+| front      | inspect front |
+| back       | inspect back  |
+
+
+* stack
+
+remember, pop pops, but top inspects
+
+#+BEGIN_SRC C++
+std::stack<int>   s;
+ 
+s.push( 2 );
+s.push( 6 );
+s.push( 51 );
+
+s.pop();
+s.top();
+#+END_SRC
+
+* Maps
+
+** order/unordered
+
+#+BEGIN_SRC 
+std::map<char,int> mymap;
+std::unordered_map<char,int> mymap;
+#+END_SRC
+
+** constructors
+
+Add "pairs" in the constructor"
+
+#+BEGIN_SRC C++
+stringmap second ( {{"apple","red"},{"lemon","yellow"}} );     
+#+END_SRC
+
+** Add elements
+
+#+BEGIN_SRC C++
+second["apple"] = "red";
+#+END_SRC
+
+** traversal
+
+each element is a pair: with first and second
+
+#+BEGIN_SRC C++
+for (auto& x: sixth) 
+   std::cout << " " << x.first << ":" << x.second;
+#+END_SRC
+
+** does the map have it? so we can access it
+
+#+BEGIN_SRC C++
+if (mymap.count(x)>0)
+   std::cout << "mymap has " << x << std::endl;
+else
+   std::cout << "mymap has no " << x << std::endl;
+#+END_SRC
+
+** find: with an iterator to it
+
+- gets specific element 
+- just use count instead, unless you want to erase it
+
+#+BEGIN_SRC C++
+std::map<char,int> mymap;
+std::map<char,int>::iterator it;
+
+it = mymap.find('b');
+if (it != mymap.end())
+  mymap.erase (it);
+#+END_SRC
+
+* Input
+
+** Using scanf
+
+#+BEGIN_SRC 
+int j = scanf("%d %d\n", &n,&q);
+assert(j == 3)
+int j = scanf("%d %d\n", &n,&q);
+assert(j == 2);
+to strings by a delimiter
+  
+#+BEGIN_SRC C++
+string st;
+vector<string> tokens;
+while (getline(std::cin, st, delim)) {
+   tokens.push_back(item);
+}
+#+END_SRC
+
+p** input into an integer
+
+| std::stoi  | int       |
+| std::stol  | long      |
+| std::stoll | long long |
+
+
+#+BEGIN_SRC C++
+string st;
+vector<int> tokens;
+while (getline(std::cin, st, delim)) {
+   tokens.push_back(std::stoi(st));
+}
+#+END_SRC
+
+
+** split string by delimiter
+
+
+* Algorithms 
+
+** Sort with functor
+
+#+BEGIN_SRC C++
+struct {
+    bool operator()(int a, int b) {   
+        return a < b;
+    }   
+} customLess;
+
+std::sort(s.begin(), s.end(), customLess);
+for (auto a : s) {
+    std::cout << a << " ";
+    
+}   
+#+END_SRC
+
+** Checking all digits used
+
+#+BEGIN_SRC C++
+tmp = number;
+while (tmp)  {
+   used |= 1 << tmp % 10 ;
+   tmp = tmp / 10;
+}
+//if used has all bits...
+f (used == (1<<10) -1)
+  ...
+  
+#+END_SRC
+
+** Fenwick
+
+#+BEGIN_SRC C++
+#include <iostream>
+#include <vector>
+#include <assert.h>
+
+
+int LSOne(int i)
+{
+    return (i & (-i));
+}
+
+class FenwickTree {
+    std::vector<int> ft;
+    unsigned int size;
+public:
+    FenwickTree(unsigned int n) {
+        ft.resize(n+1);
+        size = n;
+    }
+    int rsq(unsigned int b) {
+        assert(b > 0 && b <= size);
+
+        int sum = 0;
+        for (;b;b-=LSOne(b))
+            sum+= ft[b];
+        return sum;
+    }
+    
+    int rsq(unsigned int a, unsigned int b) {
+        assert(b >= a);
+
+        return rsq(b) - (a ==1 ? 0 : rsq(a-1));
+    }
+    
+    void adjust(unsigned int k, int v) {
+        assert(k > 0 && k <= size);
+        for (;k<ft.size();k+=LSOne(k))
+            ft[k] += v;
+    }
+    
+};
+
+#+END_SRC
+
+** Union find
+
+#+BEGIN_SRC c++
+#include <vector>
+#include <assert.h>
+
+std::vector<int> id {};
+std::vector<int> rank {};
+
+void init_union_find(int n)
+{
+    id.resize(n);
+    rank.resize(n,0);
+    for(int i=0;i<n;i++) {
+        id.at(i) = i;
+    }
+}
+
+int findSet(int i)
+{
+    if (id.at(i) == i)
+        return i;
+    else {
+        id.at(i) = findSet(id.at(i));
+        return id.at(i);
+    }
+}
+
+bool isSameSet(int p, int q)
+{
+    return (findSet(p) == findSet(q));
+}
+
+void unionSet(int i, int j)
+{
+    if (!isSameSet(i,j)) {
+        int x = findSet(i);
+        int y = findSet(j);
+        if (rank.at(x) > rank.at(y))
+            id.at(y) = x;
+        else {
+            id.at(x) = y;
+            if (rank.at(x) == rank.at(y))
+                rank.at(y)++;
+        }
+    }
+}
+#+END_SRC
+
+** Graph
+
+
+*** Dijkstra shortest path with a queue
+
+It uses a an adj matrix implementation
+
+#+BEGIN_SRC C++
+
+#ifdef USE_INTS
+typedef int node_value_type;
+#define UNREACHABLE 10000000
+#else
+typedef double node_value_type;
+#define UNREACHABLE std::numeric_limits<float>::infinity();
+#endif
+
+#define NO_VERTEX   (-1) // compute for all destinations
+typedef int node_type;
+
+
+typedef std::vector<std::vector<std::pair<node_type, node_value_type>>> graph_type;
+
+class Comparator
+{
+public:
+    int operator() ( const std::pair<node_type,node_value_type>& p1, const std::pair<node_type,node_value_type> &p2)  {
+        return p1.second>p2.second;
+    }
+};
+
+// if destination is -1 compute all destinations
+
+void dijkstra(const graph_type  &g,
+              const int &source, const int &destination,
+              std::vector<node_type>&parent,
+              std::vector<node_value_type>&distance)
+
+{
+    unsigned int N = g.size();
+
+    distance.resize(N);
+    parent.resize(N);
+
+    for(unsigned int i = 0 ;i < N; i++)
+    {
+        distance.at(i) = UNREACHABLE;
+        parent.at(i) = -1;
+    }
+
+    #define NODE_WEIGHT std::pair<node_type,node_value_type>
+    std::priority_queue<NODE_WEIGHT, std::vector<NODE_WEIGHT >, Comparator> Q;
+    #undef NODE_WEIGHT
+    
+    distance[source] = 0.0;
+
+    Q.push(std::make_pair(source,0.0));
+
+    while(!Q.empty())
+    {
+        node_type u = Q.top().first;
+        Q.pop();
+
+        if(destination != NO_VERTEX && u==destination) {
+            break;
+        }
+        
+        for(auto el:  g[u]) {
+            node_type v= el.first;
+            node_value_type w = el.second;
+
+            if(distance[v] > distance[u]+w)
+            {
+                distance[v] = distance[u]+w;
+                parent[v] = u;
+                Q.push(std::make_pair(v,distance[v]));
+            }
+        }
+    }
+/*
+    for(unsigned int i = 0 ;i < N; i++)
+    {
+        std::cout << "Un " << UNREACHABLE << std::endl;
+        std::cout << "Distance " << i << "  " << distance.at(i) << std::endl;
+        std::cout << "parent " << i << "  " << parent.at(i) << std::endl;
+    }
+*/
+}
+
+// how to use
+
+std::vector<node_type> predecessor;
+std::vector<node_value_type>distance;
+dijkstra(g, s, NO_VERTEX, predecessor, distance);
+
+
+#+END_SRC
+
+*** tarjan strongly connected
+
+it returns a vector with the function that maps the node with the id of the strongly connected subgraph
+
+#+BEGIN_SRC C++
+
+typedef std::vector<std::vector<int>> graph_type;
+
+std::pair<int, std::vector<int>> tarjan_scc(graph_type g) {
+
+    int n = g.size();
+
+    std::vector<bool>visited (n, false);
+    std::vector<int>id (n, 0);
+    std::vector<int> low (n, 0);
+    int pre {0};
+    int count {};
+    std::stack<int> stack {};
+
+    // recursively traverse the nodes
+    std::function<void (int)> dfs = [&] (int v) {
+
+        visited.at(v) = true;
+        low.at(v) = pre++;
+        int min = low.at(v);
+        stack.push(v);
+
+        for(int w: g.at(v)) {
+            if (!visited.at(w))
+                dfs(w);
+            if (low.at(w) < min)
+                min = low.at(w);
+        }
+        if (min < low.at(v)) {
+            low.at(v) = min;
+            return;
+        }
+        int w{};
+        do {
+            w = stack.top(); stack.pop();
+            id.at(w) = count;
+            low.at(w) = g.size();
+        } while (w != v);
+        count++;
+
+    };
+    // count contains number of strongly connected groups
+    
+    for(int i=0;i<n;i++) {
+        if (!visited.at(i))
+            dfs(i);
+    }
+    return std::make_pair(count, id);
+}
+
+#+END_SRC
+*** bridges and articulations
+
+bastardized version of Halim's code
+
+#+BEGIN_SRC C+
+#include <algorithm>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <functional>
+
+typedef std::vector<std::vector<std::pair<int,int>>> graph_type;
+typedef std::pair<int, int> ii;      // In this chapter, we will frequently use these
+typedef std::vector<ii> vii;      // three data type shortcuts. They may look cryptic
+
+std::pair<
+    std::vector<int>,
+    std::vector<std::pair<int, int>>
+    > articulationPointsAndBridges(graph_type AdjList) {
+
+    int V = AdjList.size();
+
+    typedef std::vector<int> vi;   // but shortcuts are useful in competitive programming
+    
+#define DFS_WHITE -1 // normal DFS, do not change this with other values (other than 0), because we usually use memset with conjunction with DFS_WHITE
+#define DFS_BLACK 1
+
+    vi dfs_low;       // additional information for articulation points/bridges/SCCs
+    vi articulation_vertex;
+    int dfsNumberCounter, dfsRoot, rootChildren;
+    
+    vi dfs_num;     // this variable has to be global, we cannot put it in recursion
+    vi dfs_parent;      // to differentiate real back edge versus bidirectional edge
+
+    std::vector<std::pair<int, int>> bridges {};
+
+    std::function<void (int)> articulationPointAndBridge = [&](int u) {
+        dfs_low[u] = dfs_num[u] = dfsNumberCounter++;      // dfs_low[u] <= dfs_num[u]
+        for (auto v: AdjList[u]) {
+            int w = v.first;
+            if (dfs_num[w] == DFS_WHITE) {                          // a tree edge
+                dfs_parent[w] = u;
+                if (u == dfsRoot)
+                    rootChildren++;  // special case, count children of root
+                
+                articulationPointAndBridge(w);
+
+                if (dfs_low[w] >= dfs_num[u])              // for articulation point
+                    articulation_vertex[u] = true;           // store this information first
+                
+                if (dfs_low[w] > dfs_num[u]) {
+                    // for bridge
+
+                    printf(" Edge (%d, %d) is a bridge\n", u, w);
+
+                    bridges.push_back(std::make_pair(u,w));
+
+                }
+                dfs_low[u] = std::min(dfs_low[u], dfs_low[w]);       // update dfs_low[u]
+            }
+            else if (w != dfs_parent[u])       // a back edge and not direct cycle
+                dfs_low[u] = std::min(dfs_low[u], dfs_num[w]);       // update dfs_low[u]
+        }
+    };
+
+    dfsNumberCounter = 0;
+    dfs_num.assign(V, DFS_WHITE);
+    dfs_low.assign(V, 0);
+    dfs_parent.assign(V, -1);
+  
+    articulation_vertex.assign(V, 0);
+
+    
+    for (int i = 0; i < V; i++) {
+        if (dfs_num[i] == DFS_WHITE) {
+            dfsRoot = i;
+            rootChildren = 0;
+            articulationPointAndBridge(i);
+            articulation_vertex[dfsRoot] = (rootChildren > 1);
+        }       // special case
+    }
+
+    return std::make_pair(articulation_vertex, bridges);
+}
+#+END_SRC
+*** bellman ford and floyd marshall
+
+it uses a map implementation of the graph
+
+
+#+BEGIN_SRC c++
+typedef int node_type;
+typedef double node_value_type;
+typedef std::map<std::pair<node_type, node_type>, node_value_type> graph_type;
+
+void print_graph(graph_type &g)
+{
+    for(auto e:g) {
+        auto v = e.first;
+        std::cout << "vertex " << v.first << "," << v.second << " value " << e.second << std::endl;
+    }
+}
+
+bool bellman_ford(graph_type &g, int n, node_type source,
+                  std::vector<node_type>&predecessor,
+                  std::vector<node_value_type>&distance)
+{
+
+    distance.resize(n);
+    predecessor.resize(n);
+
+#define LARGE (std::numeric_limits<double>::infinity())
+
+
+    for(int i=0;i<n;i++) {
+        distance[i] = LARGE;
+        predecessor[i] = -1;
+    }
+
+    distance[source] = 0;
+    /// Step 2: relax edges repeatedly
+    //for i from 1 to size(vertices)-1:
+    for(int i=1; i<(int)distance.size();i++) {
+        int changed = false;
+        for (auto edge : g) {
+            node_value_type w = edge.second;
+            node_type u = edge.first.first;
+            node_type v = edge.first.second;
+            if (distance[u] != LARGE &&  distance[u] + w < distance[v] ) {
+                distance[v] = distance[u] + w;
+                predecessor[v] = u;
+                changed = true;
+            }
+        }
+        if (!changed)
+            break;
+    }
+
+// Step 3: check for negative-weight cycles
+    for (auto edge: g ) {
+        node_value_type w = edge.second;
+        node_type u = edge.first.first;
+        node_type v = edge.first.second;
+
+        if (distance[u] != LARGE && distance[u] + w < distance[v])
+            return false;
+    }
+    return true;
+}
+
+void print_matrix(std::vector<std::vector<double>> &g)
+{
+    for(auto r:g) {
+        for(auto c:r) {
+            std::cout << c << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+// big assumtipon
+// graph is created with one edge
+
+std::vector<std::vector<double>> floyd_marshall(graph_type &g, int n)
+{
+    std::vector<std::vector<double>> distance(n, std::vector<double>(n, LARGE));
+
+    for(int i=0;i<n;i++)
+        for(int k=0;k<n;k++)
+            distance[i][k] = LARGE;
+
+    for (auto edge : g) {
+        node_value_type w = edge.second;
+        node_type u = edge.first.first;
+        node_type v = edge.first.second;
+        distance[u][v] = w;
+    }
+
+
+    for(int k=0;k<n;k++)
+        for(int i=0;i<n;i++)
+            for(int j=0;j<n;j++)
+                if (distance[i][j] > distance[i][k] + distance[k][j])
+                    distance[i][j] = distance[i][k] + distance[k][j];
+
+    // detect negative cycles
+    for(int i=0;i<n;i++)
+        for(int j=0;j<n;j++)
+            for(int k=0;k<n;k++)
+                if( distance[i][k] != LARGE && // Is there any path from i to k?
+                    distance[k][j] != LARGE && // Is there any path from k to j?
+                    distance[k][k] < 0)      // Is k part of a negative loop?
+                    distance[i][j] = -LARGE;
+
+    //print_matrix(distance);
+    return distance;
+}
+
+
+
+#+END_SRC
+
+* Regular expressions
+
+#+BEGIN_SRC C++
+#include <iostream>
+#include <string>
+#include <regex>
+
+std::regex rgx("((1[0-2])|(0?[1-9])):([0-5][0-9])((am)|(pm))");
+std::smatch match;
+
+if (std::regex_search(input.begin(), input.end(), match, rgx)){
+        std::cout << "Match\n";
+
+        //for (auto m : match)
+        //  std::cout << "  submatch " << m << '\n';
+
+        std::cout << "match[1] = " << match[1] << '\n';
+        std::cout << "match[4] = " << match[4] << '\n';
+        std::cout << "match[5] = " << match[5] << '\n';
+    }
+    else
+        std::cout << "No match\n";
+ 
+ #+END_SRC
+
+
+* Conversions
+
+** int string to string
+std::string s = std::to_string(42);
+
+** vector to string no separator
+
+#+BEGIN_SRC C++
+   std::string st2 = std::accumulate(v.begin(), v.end(), std::string {}, [](auto i, auto j) {
+           return i+std::to_string(j);
+       });
+   
+#+END_SRC
+
+** vector to string with separator
+
+#+BEGIN_SRC C++
+   std::string st{};
+   assert(v.size() > 0);
+   std::for_each(v.begin(), v.end()-1, [&st](int i) {
+           st += std::to_string(i) + " ";
+       });
+   st += std::to_string(v.back());
+#+END_SRC
+
+#+BEGIN_SRC C++
+   std::string st{};
+   assert(v.size() > 0);
+   std::for_each(v.begin(), v.end()-1, [&st](int i) {
+           st += std::to_string(i) + " ";
+       });
+   st += std::to_string(v.back());
+#+END_SRC
+
+as a template
+
+#+BEGIN_SRC C++
+template <typename T>
+std::string mkString(std::vector<T> &v, std::string sep=" ")
+{
+   std::string st2 = std::to_string(v.at(0)) + 
+      std::accumulate(v.begin()+1, v.end(), std::string {}, [&sep](auto i, auto j) {
+           return i+ sep + std::to_string(j);
+           });
+
+   return st2;
+}
+#+END_SRC
+
+#+BEGIN_SRC C++ :main no :flags -std=c++11 -Wall --pedantic -Werror :results output :exports both
+#include <iostream>
+#include <functional>
+int main()
+{
+/*
+  auto f = [](int n) -> int {
+          return n <= 1 ? 1 : n * f(n - 1);
+      };
+*/
+
+  std::function<int (int)> factorial = [&] (int i) { 
+    return (i == 1) ? 1 : i * factorial(i - 1); 
+  };
+
+  auto fact = [&] (int i) -> int { 
+    return (i == 1) ? 1 : i * fact(i - 1); 
+  };
+
+  auto f = [](int i) -> int {
+      return  10*i;
+     } ;
+  int x = f(4); //x = 24
+
+  std::cout << x << std::endl;
+  std::cout << factorial(10) << std::endl;
+  return 0;
+}
+
+#+END_SRC
+
+#+RESULTS:
+
+* Large numbers
+
+in my computer long and long long are the same
+
+| int           |          2147483647 |
+| long int      | 9223372036854775807 |
+| long long int | 9223372036854775807|
+
+Programatically with template function
+
+#+BEGIN_SRC C++
+std::numeric_limits<int>::min();
+std::numeric_limits<int>::max();
+#+END_SRC
+
+* Lambdas
+
+std::function<int (int)> factorial = [&] (int i) { 
+
+
+* Some math
+
+** xor
+
+a xor b = c then a = b xor c
+
+
+** lcm
+
+lcm(a,b) = | a * b | /gcd(a,b)
+
+** gcd
+
+#+BEGIN_SRC C++
+int gcd(int a, int b)
+{
+    if (b == 0)
+        a;
+    else
+        gcd(b, a % b);
+}
+#+END_SRC
+
+* Trees
+
+** Tree that points to the parent
+
+- The fenwick tree is a great data structure to keep track of the ancestors
+  of a node
+
+** Tree stored in a array
+
+
+- the tree uses a vector of size n
+- all elements are used
+- root at 0
+
+#+BEGIN_SRC C++
+auto isInternal = [&](int i) {
+    return (i < (m-1)/2);
+};
+
+std::function<void(int)> print = [&](int i) {
+    assert(i < m);
+    std::cout << "node " << i <<  std::endl;
+    std::cout << "  value " << tree.at(i) <<  std::endl;
+    
+    if (isInternal(i)) {
+        int off = i * 2 + 1; 
+        print(off);
+        print(off+1);
+    }
+    
+};
+
+#+END_SRC
+
+** Simple binary tree implementation
+
+as close as I can think to a functional implementation
+
+#+BEGIN_SRC C++
+#include <iostream>
+#include <memory>
+#include <functional>
+#include <string>
+#include <set>
+
+typedef int node_type;
+
+struct tree_type {
+    std::shared_ptr<tree_type> left;
+    std::shared_ptr<tree_type> right;
+    node_type value;
+    tree_type(const node_type &v) {
+        left = nullptr;
+        right = nullptr;
+        value = v;
+    }
+};
+
+typedef std::shared_ptr<tree_type> tree_ptr;
+
+tree_ptr insert(tree_ptr current, node_type value)
+{
+    if (current == nullptr) {
+        return std::make_shared<tree_type>(value);
+    } 
+
+    if (value < current->value) {
+        current->left = insert(current->left, value);
+    } else {
+        current->right = insert(current->right, value);
+    }
+    return current;
+}
+
+void tree_in_order(tree_ptr current, std::function<void (node_type&)> func)
+{
+    if (current != nullptr) {
+        func(current->value);
+        tree_in_order(current->left, func);
+        tree_in_order(current->right, func);
+    }
+}
+
+std::string shape(tree_ptr current)
+{
+    std::string ret = "";
+    if (current != nullptr) {
+        if (current->left != nullptr) {
+            ret += "L";
+            ret += shape(current->left);
+        }
+        ret += ".";
+        if (current->right != nullptr) {
+            ret += "R";
+            ret += shape(current->right);
+        }
+    }
+    return ret;
+}
+
+int main()
+{
+
+    
+    int n;
+    int k;
+
+    std::cin >> n;
+    std::cin >> k;
+
+    int c = n;
+    std::set<std::string> types;
+    while (c--> 0) {
+        tree_ptr t = nullptr;
+        
+        for(int i=0;i<k;i++) {
+            int v;
+            std::cin >> v;
+            t = insert(t, v);
+        }
+        types.insert(shape(t));
+    }
+
+    
+    std::cout << types.size() << std::endl;
+    
+
+    return 0;
+}
+
+
+
+#+END_SRC
+
+* Arithmetic hacks
+
+** ceiling
+
+ceiling of x/n
+
+#+BEGIN_SRC c++
+(x + n-1)/n
+#+END_SRC
+
+floor x/n
+
+#+BEGIN_SRC c++
+x/n
+#+END_SRC
+
+* Get all the bits as a vector
+
+#+BEGIN_SRC c++
+std::vector<int> get_bits(int n) {
+    int i = 0;
+    std::vector<int> b;
+    while (n>0) {
+        int bit = n % 2;
+        n = n/2;
+        if (bit != 0)
+            b.push_back(i);
+        i++;
+    }
+    return b;
+}
+
+#+END_SRC
+
+* primes
+
+#+BEGIN_SRC C++
+int MAX = 32010;
+std::vector<bool> primes (MAX,true);
+
+void seive()
+{
+    for(int i=2;i*i<MAX;i++) {
+        if (!primes.at(i))
+            continue;
+        //        std::cout << "prime " << i << std::endl;
+        for(int j=2;j*i<MAX;j++) {
+            primes.at(i*j) = false;
+        }
+    }
+}
+#+END_SRC
+
+this one returns the result
+
+#+BEGIN_SRC C++
+std::vector<int> seive(long SIZE)
+{
+    std::vector<bool> primes (SIZE+1,true);
+    std::vector<int> result;
+    for(int i=2;i<=SIZE/i;i++) {
+        if (!primes.at(i))
+            continue;
+        //        std::cout << "prime " << i << std::endl;
+        for(int j=2;(j*i)<=SIZE;j++) {
+            primes.at(i*j) = false;
+        }
+    }
+    for(int i=2;i<SIZE;i++) {
+        if (primes.at(i)) {
+            result.push_back(i);
+        }
+    }
+    return result;
+}
+
+#+END_SRC
+
+** Prime factorization
+
+
+#+BEGIN_SRC C++
+
+// primes is a vector with primes.
+
+std::map<int,int> factors(long int n)
+{
+    assert(n > 0);
+    std::map<int,int> result {};
+    long int lim = int(sqrt(n) + 1);
+    assert(lim < primes.back());
+    for(auto p:primes) {
+        if (p > lim)
+            break;
+        while (n % p == 0) {
+            result[p] ++;
+            n = n / p;
+        }
+        if (n == 1)
+            break;
+    }
+    if (n > 1)
+        result[n]++;
+    return result;
+}
+#+END_SRC
+
+
+* geometry
+
+
+
+Area of a polygon
+
+- reads Number of points
+- reads each point
+  - sign implies the orientation of the polygon
+
+#+BEGIN_SRC C++
+void process() {
+    double x0 {};
+    double y0 {};
+    int N;
+
+    std::cin >> N;
+    std::cin >> x0 >> y0;
+    
+    double xp = x0;
+    double yp = y0;
+    
+    double area {};
+    
+    for(int i=1;i<N;i++) {
+        double x;
+        double y;
+        std::cin >> x >> y;
+        area += (x - xp) * (yp + y)/2;
+        xp = x;
+        yp = y;
+    }
+    
+    area += (x0 - xp) * (y0 + yp)/2;
+    std::cout << -area << std::endl;
+}
+#+END_SRC
+
+** Lines and points
+
+#+BEGIN_SRC C++
+#include <algorithm>
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <vector>
+#include <fstream>
+
+#define INF 1e9
+#define EPS 1e-9
+
+double DEG_to_RAD(double d) {
+    return d * M_PI / 180.0;
+}
+
+double RAD_to_DEG(double r) {
+    return r * 180.0 / M_PI;
+}
+
+// struct point_i { int x, y; };    // basic raw form, minimalist mode
+struct point {
+    int x, y;     // whenever possible, work with point_i
+    point() { x = y = 0; }                      // default constructor
+    point(int _x, int _y) : x(_x), y(_y) {
+    };
+    bool operator < (point other) const { // override less than operator
+        if (abs(x - other.x) > 0)                 // useful for sorting
+            return x < other.x;          // first criteria , by x-coordinate
+        return y < other.y;
+    }          // second criteria, by y-coordinate
+
+    bool operator == (point other) const {
+        return (abs(x - other.x) == 0 && abs(y - other.y) == 0);
+    }
+    point operator - (point other) const {
+        return point(x - other.x, y - other.y);
+    }
+
+};
+
+
+std::ostream &operator<< (std::ostream &output, point p)
+{
+    output << "[" << p.x << ":" << p.y << "]" ;
+    return output;
+}
+
+
+double dist(point p1, point p2) {                // Euclidean distance
+                      // hypot(dx, dy) returns sqrt(dx * dx + dy * dy)
+    return hypot(p1.x - p2.x, p1.y - p2.y);
+}           // return double
+
+struct line {
+    double a;
+    double b;
+    double c;
+    line(point p1, point p2) {
+        if (abs(p1.x - p2.x) == 0) {              // vertical line is fine
+            a = 1.0;
+            b = 0.0;
+            c = -p1.x;           // default values
+        } else {
+            a = -(double)(p1.y - p2.y) / (p1.x - p2.x);
+            b = 1.0;              // IMPORTANT: we fix the value of b to 1.0
+            c = -(double)(a * p1.x) - p1.y;
+        }
+    };
+    bool operator < (line other) const {
+
+        if (fabs(a - other.a) > EPS) {
+            return a < other.a;
+        }
+        if (fabs(b - other.b) > EPS) {
+            return b < other.b;
+        }
+        if (fabs(c - other.c) > EPS) {
+            return c < other.c;
+        }
+        return false;
+            
+    };
+    bool areParallel(line l2) {       // check coefficients a & b
+        return (fabs(a-l2.a) < EPS) && (fabs(b-l2.b) < EPS);
+    }
+    bool operator==(line l2) {       // check coefficients a & b
+        return areParallel(l2) && (fabs(c - l2.c) < EPS);
+    };
+
+};          // a way to represent a line
+
+
+#+END_SRC
+
+* Strings
+
+** split
+
+
+#+BEGIN_SRC C++
+#include <sstream>
+#include <vector>
+#include <string>
+
+std::vector<std::string> split(std::string st, char separator=' ') {
+    std::vector<std::string> result {};
+    std::stringstream ss;
+    ss.str(st);
+    std::string item;
+    while (std::getline(ss, item, separator)) {
+        result.push_back(item);
+    }
+    return result;
+}
+#+END_SRC
+
+but these is always a nicer way
+
+#+BEGIN_SRC C+
+
+#+END_SRC
+
+
+** join
+
+
+this is wayyy better...
+
+#+BEGIN_SRC C++ :results output
+#include <iostream>
+#include <iterator>
+#include <algorithm>
+#include <vector>
+
+int main()
+{
+    std::vector<std::string> vec {"This", "is", "the", "sea"};
+
+    copy(vec.begin(),vec.end(), std::ostream_iterator<std::string>(std::cout," "));
+
+    return 0;
+}
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+This is the sea
+#+end_example
+
+#+BEGIN_SRC C++ :results output
+#include <iostream>
+#include <iterator>
+#include <vector>
+#include <algorithm>
+#include <functional>
+#include <numeric>
+
+std::string join(std::vector<std::string> &vec, std::string sep=" ") 
+{
+
+// this might be inefficient
+   std::string s = std::accumulate(std::begin(vec), std::end(vec), std::string(),
+                                [&](std::string &ss, std::string &s)
+                                {
+                                    return ss.empty() ? s : ss + sep + s;
+                                });
+
+   return s;
+}
+
+std::string join2(std::vector<std::string> &vec, std::string sep=" ") 
+{
+
+// this might be inefficient
+   std::string s;
+   std::for_each(std::begin(vec), std::end(vec), 
+                 [&](std::string &ss) {
+                     if (s.empty()) {
+                         s = ss;
+                     } else {
+                         s += sep + ss;
+                     }
+                 });
+
+   return s;
+}
+
+
+int main()
+{
+    std::vector<std::string> vec {"This", "is", "the", "sea"};
+
+    std::cout << "[" ;
+
+    copy(vec.begin(),vec.end(), std::ostream_iterator<std::string>(std::cout," "));
+
+    std::cout << "]" << std::endl;
+    std::cout << "[" << join(vec) << "]" << std::endl;
+    std::cout << "[" << join2(vec) << "]" << std::endl;
+    return 0;
+}
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+[This is the sea ]
+[This is the sea]
+[This is the sea]
+#+end_example
+
+
+
+** KMP
+
+From: https://joelverhagen.com/blog/2011/11/three-string-matching-algorithms-in-c/
+
+#+BEGIN_SRC C++
+std::vector<size_t> knuthMorrisPrattTable(const std::string & needle)
+{
+    std::vector<size_t> table(needle.size() + 1, -1);
+    for(int index = 1; index <= (int)needle.size(); index++)
+    {
+        int position = table[index - 1];
+        
+        while(position != -1 && needle[position] != needle[index - 1])
+            position = table[position];
+
+        table[index] = position + 1;
+    }
+
+    return table;
+}
+
+std::vector<size_t> knuthMorrisPrattSearch(const std::string & needle, 
+                                           const std::string & haystack,
+                                           const std::vector<size_t> & table)
+{
+    std::vector<size_t> matches;
+    int haystackIndex = 0;
+    int needleIndex = 0;
+
+    int haystackSize = haystack.size();
+    int needleSize = needle.size();
+
+    while(haystackIndex < haystackSize)
+    {
+        while(needleIndex != -1 && (needleIndex == needleSize || needle[needleIndex] != haystack[haystackIndex]))
+            needleIndex = table[needleIndex];
+
+        needleIndex++;
+        haystackIndex++;
+
+        if(needleIndex == needleSize)
+            matches.push_back(haystackIndex - needleSize);
+    }
+ 
+    return matches;
+}
+
+#+END_SRC
+
+** Suffix array
+
+modernized code from textbook, but I made the mistake of requiring O(n^2) space :(
+
+#+BEGIN_SRC C++
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+
+const std::string MARKER = "#";
+
+struct suffix_entry {
+    int idx;
+    std::string suffix;
+    suffix_entry(int _i, std::string _suf): idx(_i), suffix(_suf) {};
+};
+
+
+std::vector<suffix_entry> constructSA_slow(std::string T) {               // cannot go beyond 1000 characters
+    T+= MARKER;
+    int n = T.size();
+    std::vector<suffix_entry> SA;
+    for (int i = 0; i < n; i++) {
+        SA.push_back({i, T.substr(i)});
+    }
+    
+    std::sort(SA.begin(), SA.end(), [](suffix_entry a, suffix_entry b) {
+        return a.suffix < b.suffix;
+    }); // sort: O(n log n) * compare: O(n) = O(n^2 log n)
+    return SA;
+}
+
+
+std::vector<suffix_entry> constructSA(std::string T) {               // cannot go beyond 1000 characters
+//void constructSA() {         // this version can go up to 100000 characters
+    T+= MARKER;
+
+    int n = T.size();
+    std::vector<int> RA(n);
+    std::vector<int> tempRA(n);
+    std::vector<int> SA(n);
+
+
+    auto countingSort = [&](int k) {                                          // O(n)
+        int i {};
+        int sum {};
+        int maxi = std::max(300, n);   // up to 255 ASCII chars or length of n
+        std::vector<int> c(maxi,0);
+        std::vector<int> tempSA(n);
+
+        for (i = 0; i < n; i++)       // count the frequency of each integer rank
+            c.at(i + k < n ? RA.at(i + k) : 0)++;
+        for (i = sum = 0; i < maxi; i++) {
+            int t = c.at(i);
+            c.at(i) = sum;
+            sum += t;
+        }
+        for (i = 0; i < n; i++) {
+            // shuffle the suffix array if necessary
+            tempSA.at( c.at( SA.at(i)+k < n ? RA.at(SA.at(i)+k) : 0)++) = SA.at(i);
+        }
+        for (i = 0; i < n; i++)     {
+            // update the suffix array SA
+            SA.at(i) = tempSA.at(i);
+        }
+    };
+
+    for (int i = 0; i < n; i++)
+        RA[i] = T[i];                 // initial rankings
+    
+    for (int i = 0; i < n; i++)
+        SA[i] = i;     // initial SA: {0, 1, 2, ..., n-1}
+
+    int r {};
+    for (int k = 1; k < n; k <<= 1) {       // repeat sorting process log n times
+        countingSort(k);  // actually radix sort: sort based on the second item
+        countingSort(0);          // then (stable) sort based on the first item
+        tempRA[SA[0]] = r = 0;             // re-ranking; start from rank r = 0
+        for (int i = 1; i < n; i++) {
+            // compare adjacent suffixes
+            tempRA[SA[i]] = // if same pair => same rank r; otherwise, increase r
+                (RA[SA[i]] == RA[SA[i-1]] && RA[SA[i]+k] == RA[SA[i-1]+k]) ? r : ++r;
+        }
+        for (int i = 0; i < n; i++)                     // update the rank array RA
+            RA[i] = tempRA[i];
+        if (RA[SA[n-1]] == n-1)
+            break;               // nice optimization trick
+    }
+
+    std::vector<suffix_entry> sl;
+    for(int i=0;i<n;i++) {
+        sl.push_back({SA[i], T.substr(SA[i])});
+    }
+    return sl;
+}
+
+
+std::vector<int> computeLCP_slow(std::string T, const std::vector<suffix_entry> &SA) {
+    T+= MARKER;
+    int n = T.size();
+    std::vector<int> LCP(n,0);
+    LCP[0] = 0;                                              // default value
+    for (int i = 1; i < n; i++) {                // compute LCP by definition
+        int L = 0;                                       // always reset L to 0
+        while (T[SA[i].idx + L] == T[SA[i-1].idx + L])
+            L++;      // same L-th char, L++
+        LCP[i] = L;
+    }
+    return LCP;
+}
+
+std::vector<int> computeLCP(std::string T, const std::vector<suffix_entry> &SA) {
+    int i {};
+    int L {};
+    T+= MARKER;
+    int n = T.size();
+    std::vector<int> LCP(n,0);
+    std::vector<int> Phi(n,0);
+    std::vector<int> PLCP(n,0);
+
+    Phi[SA[0].idx] = -1;                                         // default value
+    for (i = 1; i < n; i++)                            // compute Phi in O(n)
+        Phi[SA[i].idx] = SA[i-1].idx;    // remember which suffix is behind this suffix
+    for (i = L = 0; i < n; i++) {             // compute Permuted LCP in O(n)
+        if (Phi[i] == -1) {           // special case
+            PLCP[i] = 0;
+            continue;
+        }  
+        while (T[i + L] == T[Phi[i] + L])
+            L++;       // L increased max n times
+        PLCP[i] = L;
+        L = std::max(L-1, 0);                             // L decreased max n times
+    }
+    for (i = 0; i < n; i++)                            // compute LCP in O(n)
+        LCP[i] = PLCP[SA[i].idx];   // put the permuted LCP to the correct position
+    return LCP;
+}
+
+std::pair<int,int> LRS(std::vector<int> LCP) {
+    // returns a pair (the LRS length and its index)
+    int idx = 0;
+    int n = LCP.size();
+    int maxLCP = -1;
+    for (int i = 1; i < n; i++) {
+        // O(n), start from i = 1
+        if (LCP[i] > maxLCP) {
+            maxLCP = LCP[i];
+            idx = i;
+        }
+    }
+    return std::make_pair(maxLCP, idx);
+}
+
+
+std::pair<int, int> stringMatching(const std::string &P, const std::vector<suffix_entry> &SA) {
+    // string matching in O(m log n)
+    int n = SA.size();
+    int m = P.size();
+    int lo = 0;
+    int hi = n-1;
+    int mid = lo;              // valid matching = [0..n-1]
+    while (lo < hi) {                                     // find lower bound
+        mid = (lo + hi) / 2;                              // this is round down
+//        int res = strncmp(T + SA[mid], P, m);  // try to find P in suffix 'mid'
+        int res = SA[mid].suffix.compare(0, m, P);
+        if (res >= 0)
+            hi = mid;        // prune upper half (notice the >= sign)
+        else
+            lo = mid + 1;           // prune lower half including mid
+    }                                      // observe `=' in "res >= 0" above
+    if (SA[lo].suffix.compare(0, m,  P) != 0)
+      return std::make_pair(-1, -1);    // if not found
+
+    std::pair<int,int> ans {};
+    ans.first = lo;
+    lo = 0;
+    hi = n - 1;
+    mid = lo;
+    while (lo < hi) {            // if lower bound is found, find upper bound
+        mid = (lo + hi) / 2;
+        int res = SA[mid].suffix.compare(0, m, P);
+        if (res > 0) hi = mid;                              // prune upper half
+        else         lo = mid + 1;            // prune lower half including mid
+    }                           // (notice the selected branch when res == 0)
+    if (SA[hi].suffix.compare(0, m, P) != 0)
+        hi--;                 // special case
+    ans.second = hi;
+    return ans;
+} // return lower/upperbound as first/second item of the pair, respectively
+
+
+std::pair<int, int> LCS(const std::string &st,
+                        const std::string &b,
+                        const std::vector<int> &LCP,
+                        const std::vector<suffix_entry> &SA) {
+    // returns a pair (the LCS length and its index)
+    int n = SA.size();
+    int m = b.size();
+    int i, idx = 0, maxLCP = -1;
+
+    auto owner = [&](int idx) {
+        return (idx < n-m-1) ? 1 : 2;
+    };
+
+    for (i = 1; i < n; i++) {
+        // O(n), start from i = 1
+        if (owner(SA[i].idx) != owner(SA[i-1].idx) && LCP[i] > maxLCP) {
+            maxLCP = LCP[i];
+            idx = i;
+        }
+    }
+    return std::make_pair(maxLCP, idx);
+}
+
+void two(){
+    std::string st = " this is the end of the world as we know it";
+    
+    std::string p {"and this is the sea"};
+//        std::string p {"GAC"};
+    int m = p.size();
+    st =  st + "$" + p;
+    int n = st.size()+1;
+    
+    auto owner = [&](int idx) {
+        return (idx < n-m-1) ? 1 : 2;
+    };
+    
+    auto sa = constructSA(st);
+    auto lcp = computeLCP(st, sa);
+    printf("\nThe LCP information of 'T+P' = '%s':\n", st.c_str());
+    printf("i\tSA[i]\tLCP[i]\tOwner\tSuffix\n");
+    for (int i = 0; i < n; i++)
+        printf("%2d\t%2d\t%2d\t%2d\t%s\n",
+               i, sa[i].idx, lcp[i],
+               owner(sa[i].idx), sa[i].suffix.c_str());
+    
+    auto ans = LCS(st, p, lcp, sa);
+    auto lcsans = sa[ans.second].suffix.substr(0, ans.first);
+    std::cout << std::endl << "The LCS is '" << lcsans << "' length  "
+              << ans.first << " offset " << ans.second << std::endl << std::endl;
+
+}
+
+int main() {
+  //printf("Enter a string T below, we will compute its Suffix Array:\n");
+
+    std::string st = "GATAGACA";
+
+    auto sa = constructSA_slow(st);
+    
+    auto print_sa = [&](std::string msg) {
+        std::cout << "FAST The Suffix Array of string T = '" << st
+        << "' is shown below " << msg << std::endl;
+        
+        
+        std::cout << "i\tSA[i]\tSuffix" << std::endl;
+
+        int i = 0;
+        for (auto s:sa) {
+            std::cout<< i << "\t" << s.idx << "\t" << s.suffix << std::endl;
+            i++;
+        }
+    };
+
+    print_sa("(O(n^2 log n) version)");
+    
+    sa = constructSA(st);
+    
+    print_sa("(O(n log n) version)");
+    
+    auto lcp = computeLCP_slow(st, sa); // O(n)
+
+    auto ans = LRS(lcp);                 // find the LRS of the first input string
+    auto lrsans = sa[ans.second].suffix.substr(0, ans.first);
+
+    std::cout << std::endl << "The LRS is '" << lrsans << "' length  "
+              << ans.first << " offset " << ans.second << std::endl << std::endl;
+
+    std::cout << "suffix and lcp" << std::endl;
+        
+    std::cout << "i\tSA[i]\tLCP[i]\tSuffix" << std::endl;
+
+    int i = 0;
+    for (auto s:sa) {
+        std::cout<< i << "\t" << s.idx << "\t" << lcp[i] << "\t"<< s.suffix << std::endl;
+        i++;
+    };
+
+    std::string P = "GA";
+    auto pos = stringMatching(P, sa);
+    if (pos.first != -1 && pos.second != -1) {
+        printf("%s is found SA[%d..%d] of %s\n", P.c_str(), pos.first, pos.second, st.c_str());
+        printf("They are:\n");
+        for (int i = pos.first; i <= pos.second; i++)
+            printf("  %s\n", sa[i].suffix.c_str());
+    } else {
+        printf("%s is not found in %s\n", P.c_str(), st.c_str());
+    }
+
+
+    //// do now two strings
+
+    two();
+  return 0;
+}
+#+END_SRC
+
+this one is hacky, but it is the "correct" one because it does not need O(n^2) space
+
+#+BEGIN_SRC C++
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+
+const std::string MARKER = "#";
+
+struct suffix_entry_inefficient {
+    int idx;
+    std::string suffix;
+    suffix_entry_inefficient(int _i, std::string _suf): idx(_i), suffix(_suf) {};
+};
+
+struct suffix_entry {
+    int idx;
+    std::string *st;
+    suffix_entry(int _i, std::string *_st): idx(_i), st(_st) {};
+    std::string suffix() {
+        return (*st).substr(idx);
+    }
+};
+
+
+std::vector<suffix_entry> constructSA_slow(std::string &T) {               // cannot go beyond 1000 characters
+    auto t2 = T + MARKER;
+    int n = t2.size();
+    std::vector<suffix_entry> SA;
+    for (int i = 0; i < n; i++) {
+        SA.push_back({i, &T});
+    }
+    
+    std::sort(SA.begin(), SA.end(), [](suffix_entry a, suffix_entry b) {
+            return a.suffix() < b.suffix();
+    }); // sort: O(n log n) * compare: O(n) = O(n^2 log n)
+    return SA;
+}
+
+
+std::vector<suffix_entry> constructSA(std::string &T) {               // cannot go beyond 1000 characters
+//void constructSA() {         // this version can go up to 100000 characters
+    auto t2 = T + MARKER;
+    int n = t2.size();
+
+    std::vector<int> RA(n);
+    std::vector<int> tempRA(n);
+    std::vector<int> SA(n);
+
+
+    auto countingSort = [&](int k) {                                          // O(n)
+        int i {};
+        int sum {};
+        int maxi = std::max(300, n);   // up to 255 ASCII chars or length of n
+        std::vector<int> c(maxi,0);
+        std::vector<int> tempSA(n);
+
+        for (i = 0; i < n; i++)       // count the frequency of each integer rank
+            c.at(i + k < n ? RA.at(i + k) : 0)++;
+        for (i = sum = 0; i < maxi; i++) {
+            int t = c.at(i);
+            c.at(i) = sum;
+            sum += t;
+        }
+        for (i = 0; i < n; i++) {
+            // shuffle the suffix array if necessary
+            tempSA.at( c.at( SA.at(i)+k < n ? RA.at(SA.at(i)+k) : 0)++) = SA.at(i);
+        }
+        for (i = 0; i < n; i++)     {
+            // update the suffix array SA
+            SA.at(i) = tempSA.at(i);
+        }
+    };
+
+    for (int i = 0; i < n; i++)
+        RA[i] = T[i];                 // initial rankings
+    
+    for (int i = 0; i < n; i++)
+        SA[i] = i;     // initial SA: {0, 1, 2, ..., n-1}
+
+    int r {};
+    for (int k = 1; k < n; k <<= 1) {       // repeat sorting process log n times
+        countingSort(k);  // actually radix sort: sort based on the second item
+        countingSort(0);          // then (stable) sort based on the first item
+        tempRA[SA[0]] = r = 0;             // re-ranking; start from rank r = 0
+        for (int i = 1; i < n; i++) {
+            // compare adjacent suffixes
+            tempRA[SA[i]] = // if same pair => same rank r; otherwise, increase r
+                (RA[SA[i]] == RA[SA[i-1]] && RA[SA[i]+k] == RA[SA[i-1]+k]) ? r : ++r;
+        }
+        for (int i = 0; i < n; i++)                     // update the rank array RA
+            RA[i] = tempRA[i];
+        if (RA[SA[n-1]] == n-1)
+            break;               // nice optimization trick
+    }
+
+    std::vector<suffix_entry> sl;
+    for(int i=0;i<n;i++) {
+        sl.push_back({SA[i], &T});
+    }
+    return sl;
+}
+
+
+std::vector<int> computeLCP_slow(std::string T, const std::vector<suffix_entry> &SA) {
+    T+= MARKER;
+    int n = T.size();
+    std::vector<int> LCP(n,0);
+    LCP[0] = 0;                                              // default value
+    for (int i = 1; i < n; i++) {                // compute LCP by definition
+        int L = 0;                                       // always reset L to 0
+        while (T[SA[i].idx + L] == T[SA[i-1].idx + L])
+            L++;      // same L-th char, L++
+        LCP[i] = L;
+    }
+    return LCP;
+}
+
+std::vector<int> computeLCP(std::string T, const std::vector<suffix_entry> &SA) {
+    int i {};
+    int L {};
+    T+= MARKER;
+    int n = T.size();
+    std::vector<int> LCP(n,0);
+    std::vector<int> Phi(n,0);
+    std::vector<int> PLCP(n,0);
+
+    Phi[SA[0].idx] = -1;                                         // default value
+    for (i = 1; i < n; i++)                            // compute Phi in O(n)
+        Phi[SA[i].idx] = SA[i-1].idx;    // remember which suffix is behind this suffix
+    for (i = L = 0; i < n; i++) {             // compute Permuted LCP in O(n)
+        if (Phi[i] == -1) {           // special case
+            PLCP[i] = 0;
+            continue;
+        }  
+        while (T[i + L] == T[Phi[i] + L])
+            L++;       // L increased max n times
+        PLCP[i] = L;
+        L = std::max(L-1, 0);                             // L decreased max n times
+    }
+    for (i = 0; i < n; i++)                            // compute LCP in O(n)
+        LCP[i] = PLCP[SA[i].idx];   // put the permuted LCP to the correct position
+    return LCP;
+}
+
+std::pair<int,int> LRS(std::vector<int> LCP) {
+    // returns a pair (the LRS length and its index)
+    int idx = 0;
+    int n = LCP.size();
+    int maxLCP = -1;
+    for (int i = 1; i < n; i++) {
+        // O(n), start from i = 1
+        if (LCP[i] > maxLCP) {
+            maxLCP = LCP[i];
+            idx = i;
+        }
+    }
+    return std::make_pair(maxLCP, idx);
+}
+
+
+std::pair<int, int> stringMatching(std::string &P, std::vector<suffix_entry> &SA) {
+    // string matching in O(m log n)
+    int n = SA.size();
+    int m = P.size();
+    int lo = 0;
+    int hi = n-1;
+    int mid = lo;              // valid matching = [0..n-1]
+    while (lo < hi) {                                     // find lower bound
+        mid = (lo + hi) / 2;                              // this is round down
+//        int res = strncmp(T + SA[mid], P, m);  // try to find P in suffix 'mid'
+        int res = (SA[mid].suffix()).compare(0, m, P);
+        if (res >= 0)
+            hi = mid;        // prune upper half (notice the >= sign)
+        else
+            lo = mid + 1;           // prune lower half including mid
+    }                                      // observe `=' in "res >= 0" above
+    if (SA[lo].suffix().compare(0, m,  P) != 0)
+      return std::make_pair(-1, -1);    // if not found
+
+    std::pair<int,int> ans {};
+    ans.first = lo;
+    lo = 0;
+    hi = n - 1;
+    mid = lo;
+    while (lo < hi) {            // if lower bound is found, find upper bound
+        mid = (lo + hi) / 2;
+        int res = (SA[mid].suffix()).compare(0, m, P);
+        if (res > 0) hi = mid;                              // prune upper half
+        else         lo = mid + 1;            // prune lower half including mid
+    }                           // (notice the selected branch when res == 0)
+    if ((SA[hi].suffix()).compare(0, m, P) != 0)
+        hi--;                 // special case
+    ans.second = hi;
+    return ans;
+} // return lower/upperbound as first/second item of the pair, respectively
+
+
+std::pair<int, int> LCS(const std::string &st,
+                        const std::string &b,
+                        const std::vector<int> &LCP,
+                        const std::vector<suffix_entry> &SA) {
+    // returns a pair (the LCS length and its index)
+    int n = SA.size();
+    int m = b.size();
+    int i, idx = 0, maxLCP = -1;
+
+    auto owner = [&](int idx) {
+        return (idx < n-m-1) ? 1 : 2;
+    };
+
+    for (i = 1; i < n; i++) {
+        // O(n), start from i = 1
+        if (owner(SA[i].idx) != owner(SA[i-1].idx) && LCP[i] > maxLCP) {
+            maxLCP = LCP[i];
+            idx = i;
+        }
+    }
+    return std::make_pair(maxLCP, idx);
+}
+
+void print_sa(std::string st, std::vector<suffix_entry> &sa, std::string msg) {
+    std::cout << "FAST The Suffix Array of string T = '" << st
+              << "' is shown below " << msg << std::endl;
+        
+        
+    std::cout << "i\tSA[i]\tSuffix" << std::endl;
+
+    int i = 0;
+    for (auto s:sa) {
+        std::cout<< i << "\t" << s.idx << "\t" << s.suffix() << std::endl;
+        i++;
+    }
+}
+
+
+void two(){
+    std::string st = " this is the end of the world as we know it";
+    
+    std::string p {"and this is the sea"};
+//        std::string p {"GAC"};
+    int m = p.size();
+    st =  st + "$" + p;
+    int n = st.size()+1;
+    
+    auto owner = [&](int idx) {
+        return (idx < n-m-1) ? 1 : 2;
+    };
+    
+    auto sa = constructSA(st);
+    print_sa(st, sa, "");
+    auto lcp = computeLCP(st, sa);
+    printf("\nth LCP information of 'T+P' = '%s':\n", st.c_str());
+    printf("i\tSA[i]\tLCP[i]\tOwner\tSuffix\n");
+    for (int i = 0; i < n; i++) {
+        std::string suf = sa[i].suffix();
+        printf("%2d\t%2d\t%2d\t%2d\t%s\n",
+               i, sa[i].idx, lcp[i],
+               owner(sa[i].idx), suf.c_str());
+    }
+    
+    auto ans = LCS(st, p, lcp, sa);
+    auto lcsans = (sa[ans.second].suffix()).substr(0, ans.first);
+    std::cout << std::endl << "The LCS is '" << lcsans << "' length  "
+              << ans.first << " offset " << ans.second << std::endl << std::endl;
+
+}
+
+
+#ifdef adfad
+
+
+
+#endif
+
+int main() {
+  //printf("Enter a string T below, we will compute its Suffix Array:\n");
+
+    std::string st = "t to be or not to be that is the question";
+
+    auto sa = constructSA_slow(st);
+    
+    print_sa(st, sa, "(O(n^2 log n) version)");
+    
+    sa = constructSA(st);
+    
+    print_sa(st, sa,"(O(n log n) version)");
+    
+    auto lcp = computeLCP_slow(st, sa); // O(n)
+
+    auto ans = LRS(lcp);                 // find the LRS of the first input string
+    auto lrsans = sa[ans.second].suffix().substr(0, ans.first);
+
+    std::cout << std::endl << "The LRS is '" << lrsans << "' length  "
+              << ans.first << " offset " << ans.second << std::endl << std::endl;
+
+    std::cout << "suffix and lcp" << std::endl;
+        
+    std::cout << "i\tSA[i]\tLCP[i]\tSuffix" << std::endl;
+
+    int i = 0;
+    for (auto s:sa) {
+        std::cout<< i << "\t" << s.idx << "\t" << lcp[i] << "\t"<< s.suffix() << std::endl;
+        i++;
+    };
+
+    std::string P = "A";
+    auto pos = stringMatching(P, sa);
+    if (pos.first != -1 && pos.second != -1) {
+        printf("%s is found SA[%d..%d] of %s\n", P.c_str(), pos.first, pos.second, st.c_str());
+        printf("They are:\n");
+        for (int i = pos.first; i <= pos.second; i++)
+            printf("  %s\n", sa[i].suffix().c_str());
+    } else {
+        printf("%s is not found in %s\n", P.c_str(), st.c_str());
+    }
+
+
+    //// do now two strings
+
+    two();
+  return 0;
+}
+
+#+END_SRC
+
+
+* Exceptions
+
+#+BEGIN_SRC C++ :main no :flags -std=c++14 -Wall --pedantic -Werror :results output :exports both
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+int main()
+{
+   std::vector<int> myVec(5);
+
+   try {
+       unsigned int i {10};
+       if (i > myVec.size()) {
+          throw std::runtime_error("I don't like numbers larger than  5");
+       }
+       std::cout << "After throw" << std::endl;
+   } catch (std::runtime_error err){
+      std::cout << "in run time error: " << err.what() << std::endl;
+   }
+   std::cout << "Continuing" << std::endl;   
+   return 0;
+}
+
+#+END_SRC

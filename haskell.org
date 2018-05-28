@@ -1,0 +1,31 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d) 
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: My FAQ of haskell
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++14 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+OPTIONS: ^:nil
+
+My FAQ of haskell
+
+* Main 
+
+read from command line... read a line compute, write a line
+
+#+BEGIN_SRC haskell
+main::IO()
+main = interact ( unlines . map compute . lines)
+#+END_SRC
+
+* Remove duplicates from a list, easy way
+
+#+BEGIN_SRC haskell
+map head . group . sort
+#+END_SRC
+
